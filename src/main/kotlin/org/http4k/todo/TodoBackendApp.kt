@@ -45,6 +45,7 @@ fun main(args: Array<String>) {
         .withRoute(Route().at(PATCH) / Path.of("id") bind ::patch)
         .withRoute(Route().at(DELETE) / Path.of("id") bind ::delete)
         .withRoute(Route().at(OPTIONS) bind { Response(OK) })
+        .withRoute(Route().at(OPTIONS) / Path.of("id") bind { { Response(OK) } })
         .withRoute(Route().at(GET) bind list())
         .withRoute(Route().at(POST) bind save())
         .withRoute(Route().at(DELETE) bind clear())
