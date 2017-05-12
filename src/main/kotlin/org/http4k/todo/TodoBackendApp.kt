@@ -30,15 +30,15 @@ fun main(args: Array<String>) {
 
     val filter = DebuggingFilters.PrintRequestAndResponse().then(Cors)
 
-    val todoLens = Body.auto<TodoEntry>().required()
-    val todoListLens = Body.auto<List<TodoEntry>>().required()
+    val todoBody = Body.auto<TodoEntry>().required()
+    val todoListBody = Body.auto<List<TodoEntry>>().required()
 
-    fun lookup(id: String): HttpHandler = { todos.find(id)?.let { Response(OK).with(todoLens to it) } ?: Response(NOT_FOUND) }
-    fun patch(id: String): HttpHandler = { Response(OK).with(todoLens to todos.save(id, todoLens(it))) }
-    fun delete(id: String): HttpHandler = { todos.delete(id)?.let { Response(OK).with(todoLens to it) } ?: Response(NOT_FOUND) }
-    fun list(): HttpHandler = { Response(OK).with(todoListLens to todos.all()) }
-    fun clear(): HttpHandler = { Response(OK).with(todoListLens to todos.clear()) }
-    fun save(): HttpHandler = { Response(OK).with(todoLens to todos.save(null, todoLens(it))) }
+    fun lookup(id: String): HttpHandler = { todos.find(id)?.let { Response(OK).with(todoBody to it) } ?: Response(NOT_FOUND) }
+    fun patch(id: String): HttpHandler = { Response(OK).with(todoBody to todos.save(id, todoBody(it))) }
+    fun delete(id: String): HttpHandler = { todos.delete(id)?.let { Response(OK).with(todoBody to it) } ?: Response(NOT_FOUND) }
+    fun list(): HttpHandler = { Response(OK).with(todoListBody to todos.all()) }
+    fun clear(): HttpHandler = { Response(OK).with(todoListBody to todos.clear()) }
+    fun save(): HttpHandler = { Response(OK).with(todoBody to todos.save(null, todoBody(it))) }
 
     RouteModule(Root, SimpleJson(Jackson), filter)
         .withRoute(Route().at(GET) / Path.of("id") bind ::lookup)
