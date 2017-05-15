@@ -3,12 +3,10 @@ package org.http4k.todo
 import org.http4k.contract.Root
 import org.http4k.contract.Route
 import org.http4k.contract.RouteModule
-import org.http4k.contract.SimpleJson
 import org.http4k.core.Body
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method.DELETE
 import org.http4k.core.Method.GET
-import org.http4k.core.Method.OPTIONS
 import org.http4k.core.Method.PATCH
 import org.http4k.core.Method.POST
 import org.http4k.core.Response
@@ -17,7 +15,6 @@ import org.http4k.core.Status.Companion.OK
 import org.http4k.core.then
 import org.http4k.core.with
 import org.http4k.filter.DebuggingFilters
-import org.http4k.format.Jackson
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Path
 import org.http4k.server.Jetty
@@ -28,7 +25,7 @@ fun main(args: Array<String>) {
     val baseUrl = if (args.size > 1) args[1] else "http://localhost:$port"
     val todos = TodoDatabase(baseUrl)
 
-    val filter = DebuggingFilters.PrintRequestAndResponse().then(Cors)
+    val globolFilters = DebuggingFilters.PrintRequestAndResponse().then(Cors)
 
     val todoBody = Body.auto<TodoEntry>().required()
     val todoListBody = Body.auto<List<TodoEntry>>().required()
@@ -40,16 +37,15 @@ fun main(args: Array<String>) {
     fun clear(): HttpHandler = { Response(OK).with(todoListBody to todos.clear()) }
     fun save(): HttpHandler = { Response(OK).with(todoBody to todos.save(null, todoBody(it))) }
 
-    RouteModule(Root, SimpleJson(Jackson), filter)
-        .withRoute(Route().at(GET) / Path.of("id") bind ::lookup)
-        .withRoute(Route().at(PATCH) / Path.of("id") bind ::patch)
-        .withRoute(Route().at(DELETE) / Path.of("id") bind ::delete)
-        .withRoute(Route().at(OPTIONS) bind { Response(OK) })
-        .withRoute(Route().at(OPTIONS) / Path.of("id") bind { { Response(OK) } })
-        .withRoute(Route().at(GET) bind list())
-        .withRoute(Route().at(POST) bind save())
-        .withRoute(Route().at(DELETE) bind clear())
-        .toHttpHandler()
+    globolFilters.then(
+        RouteModule(Root)
+            .withRoute(Route().at(GET) / Path.of("id") bind ::lookup)
+            .withRoute(Route().at(PATCH) / Path.of("id") bind ::patch)
+            .withRoute(Route().at(DELETE) / Path.of("id") bind ::delete)
+            .withRoute(Route().at(GET) bind list())
+            .withRoute(Route().at(POST) bind save())
+            .withRoute(Route().at(DELETE) bind clear())
+            .toHttpHandler())
         .asServer(Jetty(port.toInt())).start().block()
 }
 
