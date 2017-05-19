@@ -14,7 +14,9 @@ import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.then
 import org.http4k.core.with
+import org.http4k.filter.CorsPolicy.Companion.UnsafeGlobalPermissive
 import org.http4k.filter.DebuggingFilters
+import org.http4k.filter.ServerFilters.Cors
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Path
 import org.http4k.server.Jetty
@@ -25,17 +27,17 @@ fun main(args: Array<String>) {
     val baseUrl = if (args.size > 1) args[1] else "http://localhost:$port"
     val todos = TodoDatabase(baseUrl)
 
-    val globolFilters = DebuggingFilters.PrintRequestAndResponse().then(Cors)
+    val globolFilters = DebuggingFilters.PrintRequestAndResponse().then(Cors(UnsafeGlobalPermissive))
 
-    val todoBody = Body.auto<TodoEntry>().required()
-    val todoListBody = Body.auto<List<TodoEntry>>().required()
+    val todoBody = Body.auto<TodoEntry>().toLens()
+    val todoListBody = Body.auto<List<TodoEntry>>().toLens()
 
-    fun lookup(id: String): HttpHandler = { todos.find(id)?.let { Response(OK).with(todoBody to it) } ?: Response(NOT_FOUND) }
-    fun patch(id: String): HttpHandler = { Response(OK).with(todoBody to todos.save(id, todoBody(it))) }
-    fun delete(id: String): HttpHandler = { todos.delete(id)?.let { Response(OK).with(todoBody to it) } ?: Response(NOT_FOUND) }
-    fun list(): HttpHandler = { Response(OK).with(todoListBody to todos.all()) }
-    fun clear(): HttpHandler = { Response(OK).with(todoListBody to todos.clear()) }
-    fun save(): HttpHandler = { Response(OK).with(todoBody to todos.save(null, todoBody(it))) }
+    fun lookup(id: String): HttpHandler = { todos.find(id)?.let { Response(OK).with(todoBody of it) } ?: Response(NOT_FOUND) }
+    fun patch(id: String): HttpHandler = { Response(OK).with(todoBody of todos.save(id, todoBody(it))) }
+    fun delete(id: String): HttpHandler = { todos.delete(id)?.let { Response(OK).with(todoBody of it) } ?: Response(NOT_FOUND) }
+    fun list(): HttpHandler = { Response(OK).with(todoListBody of todos.all()) }
+    fun clear(): HttpHandler = { Response(OK).with(todoListBody of todos.clear()) }
+    fun save(): HttpHandler = { Response(OK).with(todoBody of todos.save(null, todoBody(it))) }
 
     globolFilters.then(
         RouteModule(Root)
