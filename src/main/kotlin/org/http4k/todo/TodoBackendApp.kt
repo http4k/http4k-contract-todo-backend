@@ -33,11 +33,11 @@ fun main(args: Array<String>) {
     val todoListBody = Body.auto<List<TodoEntry>>().toLens()
 
     fun lookup(id: String): HttpHandler = { todos.find(id)?.let { Response(OK).with(todoBody of it) } ?: Response(NOT_FOUND) }
-    fun patch(id: String): HttpHandler = { Response(OK).with(todoBody of todos.save(id, todoBody(it))) }
+    fun patch(id: String): HttpHandler = { Response(OK).with(todoBody of todos.save(id, todoBody.extract(it))) }
     fun delete(id: String): HttpHandler = { todos.delete(id)?.let { Response(OK).with(todoBody of it) } ?: Response(NOT_FOUND) }
     fun list(): HttpHandler = { Response(OK).with(todoListBody of todos.all()) }
     fun clear(): HttpHandler = { Response(OK).with(todoListBody of todos.clear()) }
-    fun save(): HttpHandler = { Response(OK).with(todoBody of todos.save(null, todoBody(it))) }
+    fun save(): HttpHandler = { Response(OK).with(todoBody of todos.save(null, todoBody.extract(it))) }
 
     globolFilters.then(
         RouteModule(Root)
