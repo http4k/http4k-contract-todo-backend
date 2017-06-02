@@ -5,10 +5,8 @@ import org.http4k.core.Body
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method.DELETE
 import org.http4k.core.Method.GET
-import org.http4k.core.Method.OPTIONS
 import org.http4k.core.Method.PATCH
 import org.http4k.core.Method.POST
-import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
@@ -19,7 +17,6 @@ import org.http4k.filter.DebuggingFilters
 import org.http4k.filter.ServerFilters
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Path
-import org.http4k.routing.by
 import org.http4k.routing.contract
 import org.http4k.routing.routes
 import org.http4k.server.Jetty
@@ -50,8 +47,7 @@ fun main(args: Array<String>) {
                 .withRoute(Route().at(DELETE) / Path.of("id") bind ::delete)
                 .withRoute(Route().at(GET) bind list())
                 .withRoute(Route().at(POST) bind save())
-                .withRoute(Route().at(DELETE) bind clear()),
-            routes(OPTIONS to "/{.*}" by { _: Request -> Response(OK) })
+                .withRoute(Route().at(DELETE) bind clear())
         )
     )
         .asServer(Jetty(port.toInt())).start().block()
