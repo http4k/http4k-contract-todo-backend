@@ -1,5 +1,7 @@
 package org.http4k.todo
 
+import org.http4k.contract.bind
+import org.http4k.contract.contract
 import org.http4k.core.Body
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method.DELETE
@@ -16,8 +18,6 @@ import org.http4k.filter.DebuggingFilters
 import org.http4k.filter.ServerFilters
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Path
-import org.http4k.routing.contract
-import org.http4k.routing.handler
 import org.http4k.routing.routes
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
@@ -42,12 +42,12 @@ fun main(args: Array<String>) {
     globalFilters.then(
         routes(
             contract(
-                Path.of("id") to GET handler ::lookup,
-                Path.of("id") to PATCH handler ::patch,
-                Path.of("id") to DELETE handler ::delete,
-                "/" to GET handler list(),
-                "/" to POST handler save(),
-                "/" to DELETE handler clear()
+                Path.of("id") to GET bind ::lookup,
+                Path.of("id") to PATCH bind ::patch,
+                Path.of("id") to DELETE bind ::delete,
+                "/" to GET bind list(),
+                "/" to POST bind save(),
+                "/" to DELETE bind clear()
             )
         ))
         .asServer(Jetty(port.toInt())).start().block()
