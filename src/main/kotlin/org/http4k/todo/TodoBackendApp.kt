@@ -50,4 +50,10 @@ fun main(args: Array<String>) {
     ).asServer(Jetty(port.toInt())).start().block()
 }
 
-data class TodoEntry(val id: String? = null, val url: String? = null, val title: String? = null, val order: Int? = 0, val completed: Boolean? = false)
+data class TodoEntry(
+        val id: String? = null,
+        val url: String? = null,
+        val title: String? = null,
+        val order: Int? = 0,
+        val completed: Boolean? = false
+)
