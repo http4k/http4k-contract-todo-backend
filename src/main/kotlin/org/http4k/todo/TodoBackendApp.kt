@@ -1,6 +1,6 @@
 package org.http4k.todo
 
-import org.http4k.contract.bind
+import org.http4k.contract.bindContract
 import org.http4k.contract.contract
 import org.http4k.core.Body
 import org.http4k.core.HttpHandler
@@ -42,12 +42,12 @@ fun main(args: Array<String>) {
     globalFilters.then(
         routes(
             contract(
-                Path.of("id") to GET bind ::lookup,
-                Path.of("id") to PATCH bind ::patch,
-                Path.of("id") to DELETE bind ::delete,
-                "/" to GET bind list(),
-                "/" to POST bind save(),
-                "/" to DELETE bind clear()
+                Path.of("id") bindContract GET to ::lookup,
+                Path.of("id") bindContract PATCH to ::patch,
+                Path.of("id") bindContract DELETE to ::delete,
+                "/" bindContract GET to list(),
+                "/" bindContract POST to save(),
+                "/" bindContract DELETE to clear()
             )
         ))
         .asServer(Jetty(port.toInt())).start().block()
