@@ -1,4 +1,4 @@
-# http4k-todo-backend
+# http4k-contract-todo-backend
 
 [![build status](https://travis-ci.org/http4k/http4k-contract-todo-backend.svg?branch=master)](https://travis-ci.org/http4k/http4k-contract-todo-backend.svg?branch=master)
 
